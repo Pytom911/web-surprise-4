@@ -10,216 +10,136 @@ tailwind.config={theme:{extend:{colors:{blush:'#FFE9F2',rose:'#FF8FB8',deeprose:
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-html{scroll-behavior:smooth}
-body{font-family:Quicksand,sans-serif;color:#4A2A44;background:linear-gradient(180deg,#FFE9F2 0%,#FFD3E5 35%,#DDEEFF 65%,#FFD9E8 100%);background-attachment:fixed}
-.petal{position:fixed;top:-40px;z-index:5;pointer-events:none;animation:fall linear forwards}
-@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
-#loader{position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,#FFD3E5,#CBE6FF);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s,visibility .8s}
-#loader.done{opacity:0;visibility:hidden}
-.beat{animation:beat 1s infinite}
-@keyframes beat{0%,100%{transform:scale(1)}30%{transform:scale(1.25)}60%{transform:scale(1.05)}}
-.card{background:rgba(255,255,255,.75);backdrop-filter:blur(6px);border:2px solid #fff;border-radius:1.5rem;box-shadow:0 10px 30px rgba(224,70,127,.15)}
-.rv{opacity:0;transform:translateY(24px);transition:all .8s}
-.rv.in{opacity:1;transform:none}
-.env{cursor:pointer;transition:transform .3s}
-.paper{max-height:0;overflow:hidden;opacity:0;transition:max-height 1.4s ease,opacity 1s}
-.paper.open{max-height:1400px;opacity:1}
-.strip{background:#fff;padding:10px 10px 28px;box-shadow:0 12px 28px rgba(47,120,196,.25);border-radius:4px;position:relative}
-.strip::before{content:"";position:absolute;top:-12px;left:50%;width:70px;height:22px;transform:translateX(-50%) rotate(-3deg);background:rgba(143,208,255,.7)}
-.frame{aspect-ratio:4/5;background:linear-gradient(135deg,#FFB8D2,#8FD0FF);overflow:hidden;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:2rem}
-.frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(.35) contrast(1.05) sepia(.15)}
-.tl::before{content:"";position:absolute;left:19px;top:0;bottom:0;width:3px;background:repeating-linear-gradient(#8FD0FF 0 8px,transparent 8px 14px)}
-.gift{transition:transform .4s}
-.gift.open .lid{transform:translateY(-34px) rotate(-12deg)}
-.lid{transition:transform .6s}
-.coupons{max-height:0;overflow:hidden;opacity:0;transition:all 1s}
-.coupons.open{max-height:900px;opacity:1}
-.sway{animation:sway 4s ease-in-out infinite;transform-origin:bottom center}
-@keyframes sway{50%{transform:rotate(6deg)}}
-.burst{position:fixed;z-index:90;pointer-events:none;font-size:1.6rem;animation:pop 1.4s ease-out forwards}
-@keyframes pop{to{transform:translate(var(--x),var(--y)) scale(1.3);opacity:0}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loader">
-  <div class="beat text-7xl text-deeprose"><i class="fa-solid fa-heart"></i></div>
-  <p class="font-script text-3xl mt-4 text-ink">Menyiapkan kejutan untukmu…</p>
-  <div class="w-56 h-3 bg-white/70 rounded-full mt-5 overflow-hidden"><div id="bar" class="h-full w-0 bg-gradient-to-r from-rose to-sky rounded-full transition-all"></div></div>
-  <p id="pct" class="text-sm mt-2 text-ocean font-semibold">0%</p>
-  <p class="text-xs mt-6 text-ink/60">sambil nunggu, tarik napas dulu ya, sayang 🌷</p>
+  <img src="assets/popoyo1.png" class="w-32 h-32 mb-4 floating" alt="Popoyo">
+  <p class="font-script text-4xl text-ink">Menyiapkan kejutan...</p>
+  <div class="w-64 h-3 bg-white/60 rounded-full mt-6 overflow-hidden border border-white/50">
+    <div id="bar" class="h-full w-0 bg-gradient-to-r from-rose to-ocean transition-all duration-300"></div>
+  </div>
+  <p id="pct" class="text-sm mt-3 text-ocean font-bold">0%</p>
+  <div class="absolute bottom-10 flex gap-4">
+    <img src="assets/flower1.png" class="w-10 opacity-50">
+    <img src="assets/flower2.png" class="w-10 opacity-50">
+  </div>
 </div>
 
-<!-- MUSIC -->
-<div class="fixed top-3 right-3 z-50 card flex items-center gap-2 px-3 py-2 text-sm">
-  <button id="play" class="w-9 h-9 rounded-full bg-deeprose text-white" aria-label="Putar atau jeda"><i class="fa-solid fa-play"></i></button>
-  <button id="next" class="w-9 h-9 rounded-full bg-ocean text-white" aria-label="Lagu berikutnya"><i class="fa-solid fa-forward-step"></i></button>
-  <span id="track" class="hidden sm:block max-w-[160px] truncate font-semibold">Lagu 1</span>
+<!-- MUSIC PLAYER -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-3 card w-[90%] max-w-sm">
+  <img id="cover" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop" class="w-14 h-14 rounded-xl shadow-md object-cover">
+  <div class="flex-1 min-w-0">
+    <p id="track" class="font-bold text-ink truncate text-sm">Loading...</p>
+    <p class="text-xs text-ocean font-semibold">Daniel Caesar</p>
+  </div>
+  <div class="flex gap-2">
+    <button id="play" class="w-10 h-10 rounded-full bg-deeprose text-white shadow-lg active:scale-95 transition flex items-center justify-center"><i class="fa-solid fa-play"></i></button>
+    <button id="next" class="w-10 h-10 rounded-full bg-ocean text-white shadow-lg active:scale-95 transition flex items-center justify-center"><i class="fa-solid fa-forward-step"></i></button>
+  </div>
 </div>
-<audio id="audio" loop></audio>
+<audio id="audio"></audio>
 
 <!-- HERO -->
 <header class="relative min-h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-  <div class="absolute bottom-0 left-2 text-6xl sm:text-8xl sway">🌷</div>
-  <div class="absolute bottom-0 right-2 text-6xl sm:text-8xl sway" style="animation-delay:-2s">🌸</div>
-  <div class="absolute top-16 left-4 text-4xl sway">🦋</div>
-  <div class="absolute top-24 right-6 text-4xl text-ocean"><i class="fa-solid fa-star"></i></div>
-  <p class="text-ocean font-bold mb-2"><i class="fa-solid fa-envelope-open-text"></i> ada surprise buat kamu</p>
-  <h1 class="font-script text-6xl sm:text-8xl text-deeprose leading-tight">Hai, <span data-name>Sayang</span></h1>
-  <p class="max-w-md mt-4 text-lg">Aku bikin tempat kecil ini khusus buat kamu. Isinya surat, cerita kita, foto-foto, dan satu kado. Siap?</p>
-  <button id="start" class="mt-8 px-8 py-4 rounded-full bg-gradient-to-r from-rose to-deeprose text-white font-bold text-lg shadow-xl hover:scale-105 transition">
-    <i class="fa-solid fa-heart"></i> Buka Kejutannya
-  </button>
-  <p class="text-xs mt-3 text-ink/60">(nyalakan suara ya, ada 2 lagu buat kamu 🎧)</p>
+  <img src="assets/flower3.png" class="absolute -top-10 -left-10 w-40 opacity-40 rotate-45">
+  <img src="assets/popoyo2.png" class="absolute bottom-10 -right-5 w-48 sway opacity-80">
+  <img src="assets/flower4.png" class="absolute top-20 right-10 w-24 floating opacity-60">
+  
+  <div class="relative z-10">
+    <p class="text-ocean font-bold tracking-widest uppercase text-xs mb-3 flex items-center justify-center gap-2">
+      <span class="w-8 h-[2px] bg-sky"></span> special gift for you <span class="w-8 h-[2px] bg-sky"></span>
+    </p>
+    <h1 class="font-script text-7xl sm:text-9xl text-deeprose drop-shadow-sm">Hai, <span data-name>Sayang</span></h1>
+    <p class="max-w-md mt-6 text-lg text-ink/80 leading-relaxed mx-auto">Aku bikin tempat kecil ini khusus buat kamu. Isinya surat, cerita kita, foto-foto, dan satu kado. Siap?</p>
+    <button id="start" class="mt-10 px-10 py-5 rounded-full bg-gradient-to-r from-rose to-deeprose text-white font-bold text-xl shadow-[0_10px_25px_rgba(224,70,127,0.4)] hover:scale-105 active:scale-95 transition">
+      <i class="fa-solid fa-heart mr-2"></i> Buka Kejutannya
+    </button>
+  </div>
 </header>
 
-<main class="max-w-3xl mx-auto px-5 pb-16 space-y-28">
+<main class="max-w-3xl mx-auto px-5 pb-32 space-y-32">
 
-<!-- LETTER -->
-<section id="letter" class="rv text-center">
-  <h2 class="font-script text-5xl text-deeprose mb-2">A Letter for You</h2>
-  <p class="mb-6 text-ink/70">Ketuk amplopnya, ada yang nulis khusus buat kamu.</p>
-  <div id="env" class="env inline-block relative w-60 h-40 rounded-xl bg-gradient-to-br from-sky to-ocean shadow-xl hover:scale-105">
-    <div class="absolute inset-0 flex items-center justify-center text-white text-5xl"><i class="fa-solid fa-heart beat"></i></div>
-    <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 text-xs bg-white text-ocean font-bold px-3 py-1 rounded-full shadow">ketuk aku</div>
-  </div>
-  <div id="paper" class="paper mt-10">
-    <div class="card text-left p-6 sm:p-10 font-script text-2xl leading-relaxed bg-white">
-      <p>Untuk <span data-name>Sayang</span>, perempuan paling berharga di duniaku 💗</p>
-      <p class="mt-4">Aku bukan orang yang paling jago merangkai kata, tapi hari ini aku mau berusaha. Karena kamu pantas dapat lebih dari sekadar "makasih ya".</p>
-      <p class="mt-4">Sejak ada kamu, hari-hariku yang biasa aja jadi punya warna. Hal sesederhana nunggu balasan chat kamu pun bisa bikin aku senyum-senyum sendiri kayak orang aneh. 🙈</p>
-      <p class="mt-4">Makasih sudah sabar sama aku di hari-hari aku nyebelin, sudah percaya waktu aku ragu, dan sudah jadi rumah tempat aku pulang. Kalau suatu hari kamu capek, ingat ya: ada satu orang yang bakal selalu milih kamu.</p>
-      <p class="mt-4">Aku sayang kamu. Hari ini, besok, dan seterusnya.</p>
-      <p class="mt-6 text-right text-deeprose">Selalu milikmu,<br><span data-from>Pacarmu</span> 🌷</p>
+  <!-- LETTER -->
+  <section id="letter" class="rv text-center relative">
+    <img src="assets/popoyo3.png" class="absolute -top-10 -right-10 w-24 z-0">
+    <h2 class="font-script text-6xl text-deeprose mb-4 relative z-10">A Letter for You</h2>
+    <div id="env" class="env inline-block relative w-64 h-40 rounded-2xl shadow-2xl hover:scale-105 active:rotate-2 transition-all">
+      <div class="absolute inset-0 flex items-center justify-center text-white text-6xl"><i class="fa-solid fa-envelope beat"></i></div>
+      <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-white text-ocean font-black px-5 py-2 rounded-full shadow-lg text-sm uppercase tracking-tighter">Open Me</div>
     </div>
-  </div>
-</section>
+    <div id="paper" class="paper mt-12">
+      <div class="card text-left p-8 sm:p-12 font-script text-2xl leading-relaxed bg-white relative overflow-hidden">
+        <img src="assets/flower1.png" class="absolute -bottom-10 -left-10 w-32 opacity-20">
+        <p class="text-deeprose text-3xl mb-6">hii, my dearest love, my sweethearttt 🤍</p>
+        <p>i want to tell you something from the deepest part of my heart, okay? so please listen carefully...</p>
+        <p class="mt-4">thank you, my love... thank you so much for coming into my life. thank you for being the most patient person in the whole world, for accepting me just as i am. thank you for never getting tired of loving me, even when i’m being annoying, when i’m being clingy, whiny, or just being my silly little self. you’re still there. you still choose me.</p>
+        <p class="mt-4">you know what? i truly feel like the luckiest girl in the entire world because i have you. out of everyone in this whole world, somehow god entrusted you to me. you’re the one i need the most, the one i want the most.</p>
+        <p class="mt-4">you are my home. the safest, most comforting place for me to return to. you never have to become someone else, okay? the person you are right now is already enough to make me fall in love with you over and over again, every single day.</p>
+        <p class="mt-8 text-right italic">with all my love,<br><span class="text-deeprose text-3xl">catala mireille</span> 🤍</p>
+      </div>
+    </div>
+  </section>
 
-<!-- STORY -->
-<section id="story" class="rv">
-  <h2 class="font-script text-5xl text-deeprose text-center mb-10">Our Story</h2>
-  <div class="tl relative space-y-8 pl-14" id="timeline"></div>
-</section>
+  <!-- PIECES OF HEART -->
+  <section id="story" class="rv relative">
+    <img src="assets/flower2.png" class="absolute top-0 -left-10 w-20 opacity-40 floating">
+    <h2 class="font-script text-6xl text-deeprose text-center mb-12">Little Pieces of My Heart</h2>
+    <div class="grid sm:grid-cols-2 gap-6" id="pieces"></div>
+  </section>
 
-<!-- PHOTOBOOTH -->
-<section id="booth" class="rv text-center">
-  <h2 class="font-script text-5xl text-deeprose mb-1">Photobooth Kita</h2>
-  <p class="mb-8 text-ink/70"><i class="fa-solid fa-camera text-ocean"></i> 8 kenangan, 2 strip. Foto sementara dari Unsplash, nanti diganti foto kita ya.</p>
-  <div class="grid grid-cols-2 gap-5 sm:gap-10 max-w-md mx-auto" id="strips"></div>
-</section>
+  <!-- PHOTOBOOTH -->
+  <section id="booth" class="rv text-center relative">
+    <img src="assets/popoyo4.png" class="absolute -bottom-10 -left-5 w-32 -rotate-12">
+    <h2 class="font-script text-6xl text-deeprose mb-2">Galeri Kenangan Kita</h2>
+    <p class="mb-10 text-ink/60 italic">8 memories, forever to go ✨</p>
+    <div class="grid grid-cols-2 gap-6 sm:gap-12 max-w-lg mx-auto" id="strips"></div>
+  </section>
 
-<!-- LITTLE THINGS -->
-<section id="little" class="rv">
-  <h2 class="font-script text-5xl text-deeprose text-center mb-8">Little Things I Want You to Know</h2>
-  <div class="grid sm:grid-cols-2 gap-4" id="things"></div>
-</section>
+  <!-- HATE ABOUT YOU -->
+  <section id="little" class="rv">
+    <h2 class="font-script text-6xl text-deeprose text-center mb-2">10 things i hate about you</h2>
+    <p class="text-center mb-12 text-sm text-ocean font-bold uppercase tracking-widest">because every "hate" makes me love you more</p>
+    <div class="grid gap-4" id="things"></div>
+  </section>
 
-<!-- GIFT -->
-<section id="gift" class="rv text-center">
-  <h2 class="font-script text-5xl text-deeprose mb-2">Kado Kecil</h2>
-  <p class="mb-6 text-ink/70">Ketuk kadonya. Isinya kupon yang boleh kamu tagih kapan saja.</p>
-  <button id="giftbox" class="gift inline-block relative" aria-label="Buka kado">
-    <div class="lid relative z-10 w-44 h-10 mx-auto rounded-lg bg-ocean flex justify-center"><div class="w-8 h-full bg-sky"></div><span class="absolute -top-6 text-4xl">🎀</span></div>
-    <div class="w-40 h-32 mx-auto rounded-b-lg bg-gradient-to-br from-rose to-deeprose flex justify-center"><div class="w-8 h-full bg-sky/90"></div></div>
-  </button>
-  <div id="coupons" class="coupons mt-8 grid gap-4 text-left"></div>
-</section>
+  <!-- GIFT -->
+  <section id="gift" class="rv text-center">
+    <h2 class="font-script text-6xl text-deeprose mb-4">Kado Kecil</h2>
+    <div id="giftbox" class="gift inline-block relative cursor-pointer group">
+      <div class="lid relative z-10 w-48 h-12 mx-auto rounded-t-xl bg-ocean flex justify-center shadow-lg group-hover:-translate-y-1 transition-transform">
+        <div class="w-10 h-full bg-sky"></div>
+        <img src="assets/flower3.png" class="absolute -top-8 w-16">
+      </div>
+      <div class="w-44 h-36 mx-auto rounded-b-xl bg-gradient-to-br from-rose to-deeprose flex justify-center shadow-2xl">
+        <div class="w-10 h-full bg-sky/80"></div>
+      </div>
+    </div>
+    <div id="coupons" class="coupons mt-12 grid gap-4 text-left"></div>
+  </section>
 
-<!-- QUESTION -->
-<section id="ask" class="rv text-center card p-8 relative overflow-hidden min-h-[320px]">
-  <div class="text-5xl mb-3">💍🌹</div>
-  <h2 class="font-script text-4xl sm:text-5xl text-deeprose">Satu pertanyaan terakhir…</h2>
-  <p class="mt-3 text-lg">Mau tetap jadi pacarku, besok, lusa, dan selamanya?</p>
-  <div class="mt-8 flex justify-center gap-4 items-center relative h-20">
-    <button id="yes" class="px-8 py-3 rounded-full bg-deeprose text-white font-bold shadow-lg hover:scale-110 transition"><i class="fa-solid fa-heart"></i> Mau dong</button>
-    <button id="no" class="px-6 py-3 rounded-full bg-sky text-ink font-bold shadow">Hmm, nggak</button>
-  </div>
-  <p id="answer" class="font-script text-3xl text-ocean mt-4 hidden">Yeay! Aku sayang kamu banyak-banyak 💙💗</p>
-</section>
+  <!-- QUESTION -->
+  <section id="ask" class="rv text-center card p-10 relative overflow-hidden border-rose/30">
+    <img src="assets/popoyo1.png" class="absolute -top-10 -right-10 w-32 opacity-20">
+    <div class="text-6xl mb-5">💍</div>
+    <h2 class="font-script text-5xl text-deeprose">Satu pertanyaan terakhir...</h2>
+    <p class="mt-4 text-xl font-semibold text-ink/80">Mau tetap jadi pacarku, besok, lusa, dan selamanya?</p>
+    <div class="mt-12 flex justify-center gap-6 items-center relative h-24">
+      <button id="yes" class="px-10 py-4 rounded-full bg-deeprose text-white font-bold text-lg shadow-xl hover:scale-110 active:scale-95 transition">Ya, Mau Banget! 💗</button>
+      <button id="no" class="px-8 py-4 rounded-full bg-sky text-ink font-bold shadow-md">Gak Mau 😜</button>
+    </div>
+    <p id="answer" class="font-script text-4xl text-ocean mt-6 hidden scale-up">Yeay! Aku sayang kamu selamanya! 💙💗</p>
+  </section>
 </main>
 
-<footer class="text-center pb-10 text-ink/70">
-  <p class="font-script text-3xl text-deeprose">Dibuat dengan <i class="fa-solid fa-heart"></i> untuk <span data-name>Sayang</span></p>
-  <p class="text-sm mt-1">🌷 🌸 🌷</p>
+<footer class="text-center pb-16 text-ink/60">
+  <img src="assets/popoyo2.png" class="w-20 mx-auto mb-4 opacity-40">
+  <p class="font-script text-3xl text-deeprose">Dibuat dengan cinta untuk <span data-name>Sayang</span></p>
+  <p class="text-xs mt-2 tracking-widest">FROM CATALA MIREILLE • 2026</p>
 </footer>
 
-<script>
-/* ====== UBAH DI SINI ====== */
-const NAME="Sayang", FROM="Pacarmu";
-const SONGS=[
- {t:"Lagu 1 (ganti dengan lagu kalian)",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
- {t:"Lagu 2 (ganti dengan lagu kalian)",src:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"}
-];
-const PHOTOS=[
- "photo-1518199266791-5375a83190b7","photo-1522673607200-164d1b6ce486","photo-1516589178581-6cd7833ae3b2","photo-1529634806980-85c3dd6d34ac",
- "photo-1494774157365-9e04c6720e47","photo-1474552226712-ac0f0961a954","photo-1469371670807-013ccf25f16a","photo-1457301353672-324d6d14f471"
-].map(id=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=400&h=500&q=70`);
-const STORY=[
- ["fa-eye","Pertama Kali Lihat Kamu","Aku masih ingat. Waktu itu aku pura-pura biasa aja, padahal dalam hati: 'siapa dia kok manis banget'."],
- ["fa-comments","Chat yang Nggak Ada Habisnya","Dari 'hai' jadi begadang. Dari bahas hal receh jadi hal yang paling aku tunggu tiap hari."],
- ["fa-heart","Hari Kita Jadian","Deg-degan parah. Tanganku dingin, jantung kayak mau lompat. Tapi jawaban kamu bikin semuanya hangat."],
- ["fa-utensils","Kebiasaan Kecil Kita","Makan bareng, ketawa gara-gara hal bodoh, saling ngeledek. Hal biasa yang jadi favoritku."],
- ["fa-infinity","Hari Ini dan Seterusnya","Cerita kita belum selesai. Masih banyak halaman kosong yang mau aku isi bareng kamu."]
-];
-const THINGS=[
- ["fa-sun","Kamu itu matahariku","Hari yang berat jadi lebih ringan begitu aku dengar suara kamu."],
- ["fa-cookie-bite","Aku suka caramu makan","Apalagi kalau kamu bilang 'cuma ngicip', terus habis setengah. Aku tetap sayang. 😂"],
- ["fa-moon","Aku mikirin kamu sebelum tidur","Dan sering juga pas bangun. Ya, hampir tiap saat sih."],
- ["fa-face-grin-squint","Ketawamu candu","Aku rela jadi lucu seharian demi dengar itu sekali."],
- ["fa-shield-heart","Kamu aman buatku","Di dekat kamu, aku boleh jadi diriku apa adanya."],
- ["fa-wand-magic-sparkles","Kamu cantik tanpa usaha","Mau dandan atau baru bangun tidur, buatku sama aja: cantik banget."]
-];
-const COUPONS=[
- ["fa-hand-holding-heart","Kupon Peluk 60 Detik","Berlaku kapan saja, tanpa syarat. Boleh minta lebih lama."],
- ["fa-bowl-food","Kupon Traktir Makan Enak","Kamu yang pilih tempatnya, aku yang bayar (dan nunggu sabar)."],
- ["fa-face-smile-wink","Kupon Aku Ngalah 1x","Kamu selalu benar di satu debat. Gunakan dengan bijak. 😌"]
-];
-/* ========================== */
-
-const $=s=>document.querySelector(s);
-document.querySelectorAll('[data-name]').forEach(e=>e.textContent=NAME);
-document.querySelectorAll('[data-from]').forEach(e=>e.textContent=FROM);
-
-// Loading
-let p=0;const iv=setInterval(()=>{p=Math.min(100,p+Math.random()*14+4);$('#bar').style.width=p+'%';$('#pct').textContent=Math.floor(p)+'%';if(p>=100){clearInterval(iv);setTimeout(()=>{$('#loader').classList.add('done');scatter()},400)}},220);
-
-// Build content
-$('#timeline').innerHTML=STORY.map(([i,t,d])=>`<div class="relative card p-5"><span class="absolute -left-14 top-3 w-10 h-10 rounded-full bg-gradient-to-br from-rose to-ocean text-white flex items-center justify-center shadow"><i class="fa-solid ${i}"></i></span><h3 class="font-bold text-lg text-ocean">${t}</h3><p class="mt-1">${d}</p></div>`).join('');
-const frame=(u,i)=>`<div class="frame"><img src="${u}" alt="Kenangan ${i+1}" loading="lazy" onerror="this.parentNode.innerHTML='${['💗','🌷','🦋','💙'][i%4]}'"></div>`;
-$('#strips').innerHTML=[0,1].map(s=>`<div class="strip ${s?'rotate-2':'-rotate-2'}">${PHOTOS.slice(s*4,s*4+4).map((u,i)=>frame(u,s*4+i)).join('')}<p class="font-script text-lg text-deeprose">${s?'Selalu berdua':'Bahagia versi kita'}</p></div>`).join('');
-$('#things').innerHTML=THINGS.map(([i,t,d])=>`<div class="card p-5 flex gap-4 items-start hover:-translate-y-1 transition"><div class="w-12 h-12 shrink-0 rounded-2xl bg-sky/60 text-ocean flex items-center justify-center text-xl"><i class="fa-solid ${i}"></i></div><div><h3 class="font-bold text-deeprose">${t}</h3><p class="text-sm mt-1">${d}</p></div></div>`).join('');
-$('#coupons').innerHTML=COUPONS.map(([i,t,d])=>`<div class="card p-4 flex gap-4 items-center border-dashed !border-rose"><i class="fa-solid ${i} text-3xl text-deeprose"></i><div><h3 class="font-bold text-ocean">${t}</h3><p class="text-sm">${d}</p></div></div>`).join('');
-
-// Scroll reveal
-const io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.12});
-document.querySelectorAll('.rv').forEach(e=>io.observe(e));
-
-// Falling petals
-function scatter(){setInterval(()=>{const e=document.createElement('div');e.className='petal';e.textContent=['🌸','🌷','💗','🩵'][Math.floor(Math.random()*4)];e.style.left=Math.random()*100+'vw';e.style.fontSize=(14+Math.random()*14)+'px';const d=7+Math.random()*6;e.style.animationDuration=d+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),d*1000)},700)}
-
-// Hearts burst
-function burst(x,y,n=18){for(let i=0;i<n;i++){const e=document.createElement('div');e.className='burst';e.textContent=['💗','💙','🌸','✨'][i%4];e.style.left=x+'px';e.style.top=y+'px';e.style.setProperty('--x',(Math.random()*300-150)+'px');e.style.setProperty('--y',(Math.random()*-300-30)+'px');document.body.appendChild(e);setTimeout(()=>e.remove(),1400)}}
-
-// Music
-const au=$('#audio');let ti=0,playing=false;
-function load(){au.src=SONGS[ti].src;$('#track').textContent=SONGS[ti].t}
-function setIcon(){$('#play').innerHTML=`<i class="fa-solid ${playing?'fa-pause':'fa-play'}"></i>`}
-function play(){au.play().then(()=>{playing=true;setIcon()}).catch(()=>{})}
-load();
-$('#play').onclick=()=>{if(playing){au.pause();playing=false;setIcon()}else play()};
-$('#next').onclick=()=>{ti=(ti+1)%SONGS.length;load();play()};
-$('#start').onclick=e=>{play();burst(e.clientX,e.clientY);$('#letter').scrollIntoView({behavior:'smooth'})};
-
-// Letter, gift, question
-$('#env').onclick=e=>{$('#paper').classList.toggle('open');burst(e.clientX,e.clientY,12)};
-$('#giftbox').onclick=e=>{$('#giftbox').classList.add('open');$('#coupons').classList.add('open');burst(e.clientX,e.clientY,22)};
-$('#yes').onclick=e=>{$('#answer').classList.remove('hidden');burst(e.clientX,e.clientY,40);$('#no').style.display='none'};
-const no=$('#no');
-function dodge(){no.style.position='absolute';no.style.left=(5+Math.random()*60)+'%';no.style.top=(Math.random()*60)+'px'}
-no.addEventListener('mouseenter',dodge);no.addEventListener('touchstart',e=>{e.preventDefault();dodge()});
-</script>
+<script src="script.js"></script>
 </body>
 </html>
